@@ -47,6 +47,7 @@
 1. Клонировать репозиторий:
 ```bash
 git clone https://github.com/IlnurSK/yii2-cinema
+cd yii2-cinema
 ```
 
 2. Установить зависимости:
@@ -54,8 +55,42 @@ git clone https://github.com/IlnurSK/yii2-cinema
 composer install
 ```
 
-3. Настроить БД в `config/db.php`.
-4. Применить миграции:
+3. Настройка Базы Данных (Быстрый старт)
+
+Проект настроен на пользователя `yii_user` с паролем `secret`. Самый быстрый способ запустить проект — создать этого пользователя и базу через консоль.
+
+* Обновить список пакетов
+`sudo apt update`
+* Установить MariaDB
+`sudo apt install mariadb-server`
+* Запустить службу
+`sudo systemctl start mariadb`
+
+Запустите сервер БД (для Linux/WSL):
+```bash
+sudo service mysql start
+```
+Зайдите в консоль MySQL (под root):
+```bash
+sudo mysql
+```
+Выполните SQL-команды:
+```sql
+-- 1. Создаем базу данных
+CREATE DATABASE cinema_db;
+
+-- 2. Создаем пользователя (как в конфиге приложения)
+CREATE USER 'yii_user'@'localhost' IDENTIFIED BY 'secret';
+
+-- 3. Даем права на базу
+GRANT ALL PRIVILEGES ON cinema_db.* TO 'yii_user'@'localhost';
+
+-- 4. Применяем изменения и выходим
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+4. Применение миграций:
 ```bash
 php yii migrate
 ```
@@ -63,7 +98,8 @@ php yii migrate
 ```bash
 php yii serve
 ```
+Проект доступен по адресу: http://localhost:8080/
 
 6. Доступ в админ панель:
-`login:admin`
-`password:admin`
+login:`admin`
+password:`admin`
