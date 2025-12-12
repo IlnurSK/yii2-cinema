@@ -48,6 +48,8 @@ class SessionSearch extends Session
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            // Сортировка сеансов по дате в админ-панели
+            'sort' => ['defaultOrder' => ['session_datetime' => SORT_DESC]],
         ]);
 
         $this->load($params, $formName);

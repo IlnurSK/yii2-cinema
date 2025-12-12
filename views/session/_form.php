@@ -33,6 +33,7 @@ use kartik\datetime\DateTimePicker;
                 'format' => 'yyyy-mm-dd hh:ii:00',
                 'todayHighLight' => true,
                 'minuteStep' => 10,
+                'pickerPosition' => 'bottom-left',
         ]
     ]);
     ?>
