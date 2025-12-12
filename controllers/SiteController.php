@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Session;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -55,13 +56,20 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays homepage.
+     * Отображаем главную страницу с сеансами, отсортированными по дате и времени
      *
      * @return string
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $sessions = Session::find()
+            ->joinWith('film')
+            ->orderBy(['session_datetime' => SORT_DESC])
+            ->all();
+
+        return $this->render('index', [
+            'sessions' => $sessions,
+        ]);
     }
 
     /**

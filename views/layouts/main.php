@@ -33,28 +33,42 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <header id="header">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => 'Yii2 Кинотеатр',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
     ]);
+
+    // Базовое меню (доступно всем)
+    $menuItems = [
+        ['label' => 'Афиша', 'url' => ['/site/index']],
+    ];
+
+    // Если пользователь Админ — добавляем пункты управления
+    if (!Yii::$app->user->isGuest) {
+        $menuItems[] = ['label' => 'Фильмы', 'url' => ['/film/index']];
+        $menuItems[] = ['label' => 'Сеансы', 'url' => ['/session/index']];
+    }
+
+    // Кнопки Входа или Выхода
+    if (Yii::$app->user->isGuest) {
+        $menuItems[] = ['label' => 'Вход (Администратор)', 'url' => ['/site/login']];
+    } else {
+        $menuItems[] = '<li class="nav-item">'
+            . Html::beginForm(['/site/logout'])
+            . Html::submitButton(
+                'Выход (' . Yii::$app->user->identity->username . ')',
+                ['class' => 'nav-link btn btn-link logout']
+            )
+            . Html::endForm()
+            . '</li>';
+    }
+
+    // Рендеринг меню
     echo Nav::widget([
-        'options' => ['class' => 'navbar-nav'],
-        'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
-            Yii::$app->user->isGuest
-                ? ['label' => 'Login', 'url' => ['/site/login']]
-                : '<li class="nav-item">'
-                    . Html::beginForm(['/site/logout'])
-                    . Html::submitButton(
-                        'Logout (' . Yii::$app->user->identity->username . ')',
-                        ['class' => 'nav-link btn btn-link logout']
-                    )
-                    . Html::endForm()
-                    . '</li>'
-        ]
+        'options' => ['class' => 'navbar-nav ms-auto'],
+        'items' => $menuItems,
     ]);
+
     NavBar::end();
     ?>
 </header>

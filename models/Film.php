@@ -102,7 +102,7 @@ class Film extends \yii\db\ActiveRecord
     public function getImageUrl()
     {
         if ($this->image_ext) {
-            return '@web/upload/film/' . $this->id . "." . $this->image_ext;
+            return '/upload/film/' . $this->id . "." . $this->image_ext;
         }
         return null; // Путь к заглушке no-image.jpg
     }
