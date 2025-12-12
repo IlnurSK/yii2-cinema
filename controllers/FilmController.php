@@ -4,9 +4,12 @@ namespace app\controllers;
 
 use app\models\Film;
 use app\models\FilmSearch;
+use yii\db\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
+use yii\web\UploadedFile;
 
 /**
  * FilmController implements the CRUD actions for Film model.
@@ -63,7 +66,8 @@ class FilmController extends Controller
     /**
      * Creates a new Film model.
      * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
+     * @return string|Response
+     * @throws Exception
      */
     public function actionCreate()
     {
@@ -71,6 +75,12 @@ class FilmController extends Controller
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
+                // Получаем файл из формы
+                $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+
+                // Вызываем метод загрузки файла (сохраняет файл и обновляет БД)
+                $model->upload();
+
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -86,14 +96,21 @@ class FilmController extends Controller
      * Updates an existing Film model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param int $id ID
-     * @return string|\yii\web\Response
+     * @return string|Response
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws Exception
      */
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+            // Получаем файл из формы
+            $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
+
+            // Вызываем метод загрузки файла (сохраняет файл и обновляет БД)
+            $model->upload();
+
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -106,7 +123,7 @@ class FilmController extends Controller
      * Deletes an existing Film model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param int $id ID
-     * @return \yii\web\Response
+     * @return Response
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionDelete($id)

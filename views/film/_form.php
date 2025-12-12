@@ -10,11 +10,17 @@ use yii\widgets\ActiveForm;
 
 <div class="film-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php
+    // Добавляем опцию для загрузки файлов
+    $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
+    ?>
 
     <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'image_ext')->textInput(['maxlength' => true]) ?>
+    <?php
+    // Обновляем атрибут imageFile
+    echo $form->field($model, 'imageFile')->fileInput();
+    ?>
 
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
 
