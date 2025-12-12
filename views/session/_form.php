@@ -2,6 +2,9 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use yii\helpers\ArrayHelper;
+use app\models\Film;
+use kartik\datetime\DateTimePicker;
 
 /** @var yii\web\View $this */
 /** @var app\models\Session $model */
@@ -12,9 +15,27 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'film_id')->textInput() ?>
+    <?php
+    // Получаем все фильмы и делаем массив с помощью ArrayHelper: [id => title]
+    $films = ArrayHelper::map(Film::find()->all(), 'id', 'title');
 
-    <?= $form->field($model, 'session_datetime')->textInput() ?>
+    // Рендерим список
+    echo $form->field($model, 'film_id')->dropDownList($films, ['prompt' => 'Выберите фильм...']);
+    ?>
+
+    <?php
+    // Подключаем виджет с календарем
+    echo $form->field($model, 'session_datetime')->widget(DateTimePicker::class, [
+            'options' => ['placeholder' => 'Выберите дату и время сеанса...'],
+            'layout' => '{input}{picker}{remove}',
+            'pluginOptions' => [
+                'autoclose' => true,
+                'format' => 'yyyy-mm-dd hh:ii:00',
+                'todayHighLight' => true,
+                'minuteStep' => 10,
+        ]
+    ]);
+    ?>
 
     <?= $form->field($model, 'price')->textInput(['maxlength' => true]) ?>
 
