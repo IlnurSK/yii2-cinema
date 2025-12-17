@@ -18,7 +18,7 @@ $this->title = 'Кинотеатр - Расписание';
                     <div class="card h-100 shadow-sm">
                         <div class="card-img-top-wrapper" style="height: 300px; overflow: hidden; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
                             <?php if ($session->film->getImageUrl()): ?>
-                                <img src="<?= $session->film->getImageUrl() ?>" class="card-img-top" alt="<?= $session->film->title ?>" style="width: 100%; height: 100%; object-fit: cover;">
+                                <img src="<?= $session->film->getImageUrl() ?>" class="card-img-top" alt="<?= $session->film->title ?>" style="width: 100%; height: 100%; object-fit: contain;">
                             <?php else: ?>
                                 <span class="text-muted">Нет постера</span>
                             <?php endif; ?>
