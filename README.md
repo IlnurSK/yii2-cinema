@@ -1,105 +1,60 @@
-# Yii2 Cinema (Test Task)
+<p align="center">
+    <a href="https://github.com/yiisoft" target="_blank">
+        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
+    </a>
+    <h1 align="center">Yii 2 Advanced Project Template</h1>
+    <br>
+</p>
 
-Тестовое задание: Реализация системы управления расписанием кинотеатра.
+Yii 2 Advanced Project Template is a skeleton [Yii 2](https://www.yiiframework.com/) application best for
+developing complex Web applications with multiple tiers.
 
-## Функционал
+The template includes three tiers: front end, back end, and console, each of which
+is a separate Yii application.
 
-### Клиентская часть (Гость)
-- Просмотр афиши (карточки фильмов).
-- Сортировка сеансов: от ближайших к дальним.
-- Адаптивная верстка (Bootstrap 5).
+The template is designed to work in a team development environment. It supports
+deploying the application in different environments.
 
-### Админ-панель (Доступ: admin/admin)
-- **Фильмы:** CRUD, загрузка постеров (сохранение с ID фильма), валидация расширений.
-- **Сеансы:**
-   - Визуальный календарь (Kartik DateTimePicker).
-   - **Валидация коллизий:** Система не дает создать сеанс, если зал занят (с учетом длительности фильма + 30 мин перерыв).
-   - Фильтрация и сортировка.
+Documentation is at [docs/guide/README.md](docs/guide/README.md).
 
-## Технологии
-- **Framework:** Yii2 Basic
-- **DB:** MySQL / MariaDB
-- **Widgets:** `kartik-v/yii2-widget-datetimepicker`
-- **Architecture:** MVC, Fat Model (логика валидации и загрузки файлов вынесена в Модели).
+[![Latest Stable Version](https://img.shields.io/packagist/v/yiisoft/yii2-app-advanced.svg)](https://packagist.org/packages/yiisoft/yii2-app-advanced)
+[![Total Downloads](https://img.shields.io/packagist/dt/yiisoft/yii2-app-advanced.svg)](https://packagist.org/packages/yiisoft/yii2-app-advanced)
+[![build](https://github.com/yiisoft/yii2-app-advanced/workflows/build/badge.svg)](https://github.com/yiisoft/yii2-app-advanced/actions?query=workflow%3Abuild)
 
-## Скриншоты
+DIRECTORY STRUCTURE
+-------------------
 
-### 1. Афиша (Главная)
-![main.png](docs/main.png)
-
-### 2. Страница авторизации (в админ-панель)
-![login.png](docs/login.png)
-
-### 3. Страница администрирования фильмов
-![movies.png](docs/movies.png)
-
-### 4. Страница администрирования сеансов
-![sessions.png](docs/sessions.png)
-
-### 5. Страница создания сеансов
-![session_create.png](docs/session_create.png)
-
-### 6. Валидация времени (Защита от накладок)
-![validation.png](docs/validation.png)
-
-## Установка
-
-1. Клонировать репозиторий:
-```bash
-git clone https://github.com/IlnurSK/yii2-cinema
-cd yii2-cinema
 ```
-
-2. Установить зависимости:
-```bash
-composer install
+common
+    config/              contains shared configurations
+    mail/                contains view files for e-mails
+    models/              contains model classes used in both backend and frontend
+    tests/               contains tests for common classes    
+console
+    config/              contains console configurations
+    controllers/         contains console controllers (commands)
+    migrations/          contains database migrations
+    models/              contains console-specific model classes
+    runtime/             contains files generated during runtime
+backend
+    assets/              contains application assets such as JavaScript and CSS
+    config/              contains backend configurations
+    controllers/         contains Web controller classes
+    models/              contains backend-specific model classes
+    runtime/             contains files generated during runtime
+    tests/               contains tests for backend application    
+    views/               contains view files for the Web application
+    web/                 contains the entry script and Web resources
+frontend
+    assets/              contains application assets such as JavaScript and CSS
+    config/              contains frontend configurations
+    controllers/         contains Web controller classes
+    models/              contains frontend-specific model classes
+    runtime/             contains files generated during runtime
+    tests/               contains tests for frontend application
+    views/               contains view files for the Web application
+    web/                 contains the entry script and Web resources
+    widgets/             contains frontend widgets
+vendor/                  contains dependent 3rd-party packages
+environments/            contains environment-based overrides
 ```
-
-3. Настройка Базы Данных (Быстрый старт)
-
-Проект настроен на пользователя `yii_user` с паролем `secret`. Самый быстрый способ запустить проект — создать этого пользователя и базу через консоль.
-
-* Обновить список пакетов
-`sudo apt update`
-* Установить MariaDB
-`sudo apt install mariadb-server`
-* Запустить службу
-`sudo systemctl start mariadb`
-
-Запустите сервер БД (для Linux/WSL):
-```bash
-sudo service mysql start
-```
-Зайдите в консоль MySQL (под root):
-```bash
-sudo mysql
-```
-Выполните SQL-команды:
-```sql
--- 1. Создаем базу данных
-CREATE DATABASE cinema_db;
-
--- 2. Создаем пользователя (как в конфиге приложения)
-CREATE USER 'yii_user'@'localhost' IDENTIFIED BY 'secret';
-
--- 3. Даем права на базу
-GRANT ALL PRIVILEGES ON cinema_db.* TO 'yii_user'@'localhost';
-
--- 4. Применяем изменения и выходим
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-4. Применение миграций:
-```bash
-php yii migrate
-```
-5. Запустить сервер:
-```bash
-php yii serve
-```
-Проект доступен по адресу: http://localhost:8080/
-
-6. Доступ в админ панель:
-login:`admin`
-password:`admin`
