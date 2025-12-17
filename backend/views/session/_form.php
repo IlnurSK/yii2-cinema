@@ -22,9 +22,12 @@ use kartik\datetime\DateTimePicker;
 
     <?= $form->field($model, 'session_datetime')->widget(DateTimePicker::class, [
         'options' => ['placeholder' => 'Выберите время сеанса...'],
+        'convertFormat' => true,
         'pluginOptions' => [
             'autoclose' => true,
-            'format' => 'yyyy-mm-dd hh:ii'
+            'format' => 'yyyy-MM-dd HH:mm',
+            'weekStart' => 1,
+            'todayBtn' => true,
         ]
     ]) ?>
 

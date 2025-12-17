@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\models\Session;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
@@ -75,7 +76,16 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        // Получаем сеансы
+        $sessions = Session::find()
+            ->joinWith('film')
+            ->where(['>=', 'session_datetime', date('Y-m-d H:i:00')]) // Фильтруем на предстояшие сеансы
+            ->orderBy(['session_datetime' => SORT_ASC]) // Сортировка (Хронологический порядок)
+            ->all();
+
+        return $this->render('index', [
+            'sessions' => $sessions,
+        ]);
     }
 
     /**

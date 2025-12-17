@@ -4,9 +4,11 @@ namespace backend\controllers;
 
 use common\models\Film;
 use backend\models\FilmSearch;
+use yii\db\Exception;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\ServerErrorHttpException;
 use yii\web\UploadedFile;
 
 /**
@@ -23,7 +25,7 @@ class FilmController extends Controller
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
+                    'class'   => VerbFilter::className(),
                     'actions' => [
                         'delete' => ['POST'],
                     ],
@@ -39,11 +41,11 @@ class FilmController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new FilmSearch();
+        $searchModel  = new FilmSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -65,6 +67,7 @@ class FilmController extends Controller
      * Creates a new Film model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
+     * @throws Exception
      */
     public function actionCreate()
     {
@@ -72,6 +75,7 @@ class FilmController extends Controller
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post())) {
+                // Сохраняем модель, чтобы получить ID (нужен для имени файла)
                 if ($model->save()) {
                     // Получаем файл из формы
                     $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
@@ -79,12 +83,11 @@ class FilmController extends Controller
                     // Вызываем метод загрузки файла
                     if ($model->imageFile) {
                         $model->upload();
-                        $model->save();
+                        $model->save(false); // Сохраняем расширение без валидации
                     }
 
                     return $this->redirect(['view', 'id' => $model->id]);
                 }
-
             }
         } else {
             $model->loadDefaultValues();
@@ -101,6 +104,8 @@ class FilmController extends Controller
      * @param int $id ID
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
+     * @throws Exception
+     * @throws ServerErrorHttpException
      */
     public function actionUpdate($id)
     {
@@ -110,14 +115,19 @@ class FilmController extends Controller
             // Получаем файл из формы
             $model->imageFile = UploadedFile::getInstance($model, 'imageFile');
 
-            // Вызываем метод загрузки файла
+            // Если файл загружен - сразу грузим его и обновляем путь
             if ($model->imageFile) {
                 $model->upload();
             }
 
-            if ($model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+            // Сохраняем
+            if ($model->imageFile) {
+                $model->save(false);
+            } else {
+                $model->save(); // Обычное сохранение (если меняли только текст)
             }
+
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('update', [

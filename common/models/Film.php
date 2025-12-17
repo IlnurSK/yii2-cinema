@@ -3,10 +3,13 @@
 namespace common\models;
 
 use Yii;
-use yii\db\Exception;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\web\ServerErrorHttpException;
+use yii\web\UploadedFile;
 
 /**
- * This is the model class for table "film".
+ * Модель для таблицы "film".
  *
  * @property int $id
  * @property string $title
@@ -17,13 +20,12 @@ use yii\db\Exception;
  *
  * @property Session[] $sessions
  */
-class Film extends \yii\db\ActiveRecord
+class Film extends ActiveRecord
 {
     /**
-     * Виртуальный атрибут для загрузки файла (не в БД)
+     * @var UploadedFile|null Загружаемый файл изображения
      */
     public $imageFile;
-
 
     /**
      * {@inheritdoc}
@@ -39,12 +41,12 @@ class Film extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['image_ext', 'description'], 'default', 'value' => null],
             [['title', 'duration', 'age_rating'], 'required'],
             [['description'], 'string'],
             [['duration'], 'integer'],
             [['title', 'image_ext', 'age_rating'], 'string', 'max' => 255],
-            [['imageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            [['image_ext', 'description'], 'default', 'value' => null],
+            [['imageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg, jpeg'],
         ];
     }
 
@@ -54,20 +56,19 @@ class Film extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'title' => 'Название фильма',
-            'image_ext' => 'Расширение картинки',
+            'id'          => 'ID',
+            'title'       => 'Название фильма',
+            'image_ext'   => 'Расширение файла',
             'description' => 'Описание',
-            'duration' => 'Продолжительность (мин)',
-            'age_rating' => 'Возрастное ограничение',
-            'imageFile' => 'Постер',
+            'duration'    => 'Продолжительность (мин)',
+            'age_rating'  => 'Возрастное ограничение',
+            'imageFile'   => 'Постер',
         ];
     }
 
     /**
-     * Gets query for [[Sessions]].
-     *
-     * @return \yii\db\ActiveQuery
+     * Связь с сеансами.
+     * @return ActiveQuery
      */
     public function getSessions()
     {
@@ -75,14 +76,14 @@ class Film extends \yii\db\ActiveRecord
     }
 
     /**
-     * Выпадающий список для возрастного ограничения
-     * @return string[]
+     * Список доступных возрастных ограничений.
+     * @return array
      */
     public static function getAgeRatings()
     {
         return [
-            '0+' => '0+',
-            '6+' => '6+',
+            '0+'  => '0+',
+            '6+'  => '6+',
             '12+' => '12+',
             '16+' => '16+',
             '18+' => '18+',
@@ -90,80 +91,91 @@ class Film extends \yii\db\ActiveRecord
     }
 
     /**
-     * Вспомогательный метод для получения ссылки на картинку
+     * Получение URL картинки для отображения.
+     * @return string|null
      */
     public function getImageUrl()
     {
         if ($this->image_ext) {
-            return '/upload/film/' . $this->id . "." . $this->image_ext;
+            return '/uploads/film/' . $this->id . '.' . $this->image_ext;
         }
-        return null; // Путь к заглушке no-image.jpg
+        return null;
     }
 
     /**
-     * Метод загрузки файла
-     * @throws Exception
+     * Загрузка файла на сервер.
+     * Создает папку, если она не существует, и сохраняет файл.
+     *
+     * @return bool
+     * @throws ServerErrorHttpException Если не удалось создать директорию
      */
     public function upload(): bool
     {
-        // Проверка существования файла
-        if ($this->validate() && $this->imageFile) {
-            $path = Yii::getAlias('@frontend/web/upload/film/');
+        if ($this->imageFile) {
+            $dir = Yii::getAlias('@frontend/web/uploads/film/');
 
-            // Если папки нет, создадим её
-            if (!file_exists($path)) {
-                mkdir($path, 0777, true);
+            // Создаем директорию, если её нет
+            if (!file_exists($dir)) {
+                if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+                    throw new ServerErrorHttpException('Не удалось создать директорию для загрузки: ' . $dir);
+                }
             }
 
-            // Формируем имя файла: ID.расширение (id.jpg)
-            $filename = $this->id . "." . $this->imageFile->extension;
-
-            // Сохраняем файл на диск
-            $this->imageFile->saveAs($path . $filename);
-
-            // Обновляем запись в БД (сохраняем расширение)
             $this->image_ext = $this->imageFile->extension;
-            $this->save(false); // сохраняем без повторной валидации
+            $fullPath = $dir . $this->id . '.' . $this->image_ext;
 
+            // Сохраняем файл
+            return $this->imageFile->saveAs($fullPath);
+        }
+        return false;
+    }
+
+    /**
+     * Физическое удаление файла с диска.
+     *
+     * @param string|null $ext Если передано, удаляет файл с конкретным расширением.
+     */
+    private function deleteImage($ext = null)
+    {
+        $extension = $ext ?: $this->image_ext;
+
+        if ($extension) {
+            $path = Yii::getAlias('@frontend/web/uploads/film/') . $this->id . '.' . $extension;
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+    }
+
+    /**
+     * Действия перед сохранением записи.
+     * Удаляет старый файл, если загружен новый с другим расширением.
+     */
+    public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+            // Если это не вставка (update) и загружен новый файл
+            if (!$insert && $this->imageFile) {
+                $oldExt = $this->getOldAttribute('image_ext');
+
+                // Если расширение изменилось (например, было png, стало jpg), удаляем старый файл.
+                // Если расширение то же самое, saveAs() просто перезапишет файл.
+                if ($oldExt && $oldExt !== $this->imageFile->extension) {
+                    $this->deleteImage($oldExt);
+                }
+            }
             return true;
         }
         return false;
     }
 
     /**
-     * Метод удаления картинки
-     * @return void
-     */
-    private function deleteImage()
-    {
-        $file = Yii::getAlias('@frontend/web/uploads/film/') . $this->id . '.' . $this->image_ext;
-        if (file_exists($file)) {
-            unlink($file);
-        }
-    }
-
-    /**
-     * Метод удаления файла при удалении записи
+     * Действия после удаления записи.
+     * Удаляет связанное изображение.
      */
     public function afterDelete()
     {
         parent::afterDelete();
         $this->deleteImage();
     }
-
-    /**
-     * Метод удаления файла при обновлении записи
-     */
-    public function beforeSave($insert): bool
-    {
-        if (parent::beforeSave($insert)) {
-            // Проверка, что это ОБНОВЛЕНИЕ записи и загружен НОВЫЙ файл
-            if (!$insert && $this->imageFile && $this->image_ext) {
-                $this->deleteImage();
-            }
-            return true;
-        }
-        return false;
-    }
-
 }

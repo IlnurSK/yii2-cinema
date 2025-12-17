@@ -20,6 +20,7 @@ AppAsset::register($this);
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
     <?php $this->head() ?>
 </head>
 <body class="d-flex flex-column h-100">
@@ -28,15 +29,25 @@ AppAsset::register($this);
 <header>
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => 'Yii2 Кинотеатр',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
+        ['label' => 'Главная', 'url' => ['/site/index']],
+        ['label' => 'Фильмы', 'url' => ['/film/index']],
+        ['label' => 'Сеансы', 'url' => ['/session/index']],
+
+        [
+            'label' => 'Открыть сайт ↗',
+            'url' => 'http://localhost:8080', // Жесткая ссылка на порт фронта
+            'linkOptions' => ['target' => '_blank'],
+        ],
+
     ];
+
     if (Yii::$app->user->isGuest) {
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     }     
