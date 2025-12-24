@@ -14,7 +14,7 @@ class FilmSearch extends Film
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id', 'duration'], 'integer'],
@@ -25,7 +25,7 @@ class FilmSearch extends Film
     /**
      * {@inheritdoc}
      */
-    public function scenarios()
+    public function scenarios(): array
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
@@ -39,7 +39,7 @@ class FilmSearch extends Film
      *
      * @return ActiveDataProvider
      */
-    public function search($params, $formName = null)
+    public function search(array $params, string $formName = null): ActiveDataProvider
     {
         $query = Film::find();
 

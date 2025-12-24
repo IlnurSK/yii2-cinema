@@ -30,7 +30,7 @@ class Film extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'film';
     }
@@ -38,7 +38,7 @@ class Film extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['title', 'duration', 'age_rating'], 'required'],
@@ -53,7 +53,7 @@ class Film extends ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id'          => 'ID',
@@ -70,7 +70,7 @@ class Film extends ActiveRecord
      * Связь с сеансами.
      * @return ActiveQuery
      */
-    public function getSessions()
+    public function getSessions(): ActiveQuery
     {
         return $this->hasMany(Session::class, ['film_id' => 'id']);
     }
@@ -79,7 +79,7 @@ class Film extends ActiveRecord
      * Список доступных возрастных ограничений.
      * @return array
      */
-    public static function getAgeRatings()
+    public static function getAgeRatings(): array
     {
         return [
             '0+'  => '0+',
@@ -94,7 +94,7 @@ class Film extends ActiveRecord
      * Получение URL картинки для отображения.
      * @return string|null
      */
-    public function getImageUrl()
+    public function getImageUrl(): ?string
     {
         if ($this->image_ext) {
             return '/uploads/film/' . $this->id . '.' . $this->image_ext;
@@ -111,23 +111,23 @@ class Film extends ActiveRecord
      */
     public function upload(): bool
     {
-        if ($this->imageFile) {
-            $dir = Yii::getAlias('@frontend/web/uploads/film/');
-
-            // Создаем директорию, если её нет
-            if (!file_exists($dir)) {
-                if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
-                    throw new ServerErrorHttpException('Не удалось создать директорию для загрузки: ' . $dir);
-                }
-            }
-
-            $this->image_ext = $this->imageFile->extension;
-            $fullPath = $dir . $this->id . '.' . $this->image_ext;
-
-            // Сохраняем файл
-            return $this->imageFile->saveAs($fullPath);
+        if (!$this->imageFile) {
+            return false;
         }
-        return false;
+        $dir = Yii::getAlias('@frontend/web/uploads/film/');
+
+        // Создаем директорию, если её нет
+        if (!file_exists($dir)) {
+            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+                throw new ServerErrorHttpException('Не удалось создать директорию для загрузки: ' . $dir);
+            }
+        }
+
+        $this->image_ext = $this->imageFile->extension;
+        $fullPath        = $dir . $this->id . '.' . $this->image_ext;
+
+        // Сохраняем файл
+        return $this->imageFile->saveAs($fullPath);
     }
 
     /**
@@ -135,7 +135,7 @@ class Film extends ActiveRecord
      *
      * @param string|null $ext Если передано, удаляет файл с конкретным расширением.
      */
-    private function deleteImage($ext = null)
+    private function deleteImage(string $ext = null)
     {
         $extension = $ext ?: $this->image_ext;
 
@@ -151,22 +151,22 @@ class Film extends ActiveRecord
      * Действия перед сохранением записи.
      * Удаляет старый файл, если загружен новый с другим расширением.
      */
-    public function beforeSave($insert)
+    public function beforeSave($insert): bool
     {
-        if (parent::beforeSave($insert)) {
-            // Если это не вставка (update) и загружен новый файл
-            if (!$insert && $this->imageFile) {
-                $oldExt = $this->getOldAttribute('image_ext');
-
-                // Если расширение изменилось (например, было png, стало jpg), удаляем старый файл.
-                // Если расширение то же самое, saveAs() просто перезапишет файл.
-                if ($oldExt && $oldExt !== $this->imageFile->extension) {
-                    $this->deleteImage($oldExt);
-                }
-            }
-            return true;
+        if (!parent::beforeSave($insert)) {
+            return false;
         }
-        return false;
+        // Если это не вставка (update) и загружен новый файл
+        if (!$insert && $this->imageFile) {
+            $oldExt = $this->getOldAttribute('image_ext');
+
+            // Если расширение изменилось (например, было png, стало jpg), удаляем старый файл.
+            // Если расширение то же самое, saveAs() просто перезапишет файл.
+            if ($oldExt && $oldExt !== $this->imageFile->extension) {
+                $this->deleteImage($oldExt);
+            }
+        }
+        return true;
     }
 
     /**

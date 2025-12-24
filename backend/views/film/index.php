@@ -45,9 +45,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'title',
             'description:ntext',
             'duration',
-            'age_rating',
             [
-                'class' => ActionColumn::className(),
+                'attribute' => 'age_rating',
+                'label' => 'Возрастное ограничение',
+                'filter' => Film::getAgeRatings(),
+            ],
+            [
+                'class' => ActionColumn::class,
                 'urlCreator' => function ($action, Film $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                  }

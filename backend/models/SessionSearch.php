@@ -14,7 +14,7 @@ class SessionSearch extends Session
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['id', 'film_id'], 'integer'],
@@ -26,7 +26,7 @@ class SessionSearch extends Session
     /**
      * {@inheritdoc}
      */
-    public function scenarios()
+    public function scenarios(): array
     {
         // bypass scenarios() implementation in the parent class
         return Model::scenarios();
@@ -40,7 +40,7 @@ class SessionSearch extends Session
      *
      * @return ActiveDataProvider
      */
-    public function search($params, $formName = null)
+    public function search(array $params, string $formName = null): ActiveDataProvider
     {
         $query = Session::find();
 
@@ -50,7 +50,7 @@ class SessionSearch extends Session
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => ['defaultOrder' => ['session_datetime' => SORT_ASC]],
+            'sort'  => ['defaultOrder' => ['session_datetime' => SORT_ASC]],
         ]);
 
         $this->load($params, $formName);
@@ -63,11 +63,12 @@ class SessionSearch extends Session
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
-            'film_id' => $this->film_id,
-            'session_datetime' => $this->session_datetime,
-            'price' => $this->price,
+            'session.id' => $this->id,
+            'film_id'    => $this->film_id,
+            'price'      => $this->price,
         ]);
+
+        $query->andFilterWhere(['like', 'session_datetime', $this->session_datetime]);
 
         return $dataProvider;
     }

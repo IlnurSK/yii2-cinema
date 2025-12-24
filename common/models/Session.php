@@ -21,7 +21,7 @@ class Session extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'session';
     }
@@ -29,7 +29,7 @@ class Session extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['film_id', 'session_datetime', 'price'], 'required'],
@@ -45,7 +45,7 @@ class Session extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -60,7 +60,7 @@ class Session extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFilm()
+    public function getFilm(): \yii\db\ActiveQuery
     {
         return $this->hasOne(Film::class, ['id' => 'film_id']);
     }
