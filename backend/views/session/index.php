@@ -14,7 +14,7 @@ use yii\grid\GridView;
 /** @var backend\models\SessionSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title                   = 'Sessions';
+$this->title                   = 'Сеансы';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="session-index">
@@ -22,7 +22,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Session', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Создать сеанс', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php

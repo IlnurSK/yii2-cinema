@@ -3,6 +3,8 @@
 namespace common\models;
 
 use Yii;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "session".
@@ -14,7 +16,7 @@ use Yii;
  *
  * @property Film $film
  */
-class Session extends \yii\db\ActiveRecord
+class Session extends ActiveRecord
 {
 
 
@@ -58,9 +60,9 @@ class Session extends \yii\db\ActiveRecord
     /**
      * Gets query for [[Film]].
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
-    public function getFilm(): \yii\db\ActiveQuery
+    public function getFilm(): ActiveQuery
     {
         return $this->hasOne(Film::class, ['id' => 'film_id']);
     }
@@ -68,7 +70,7 @@ class Session extends \yii\db\ActiveRecord
     /**
      * Валидатор временного интервала (с учетом 30 минутного перерыва)
      */
-    public function validateTime($attribute, $params)
+    public function validateTime(string $attribute, ?array $params)
     {
         // Проверяем данные по выбранному фильму
         $currentFilm = Film::findOne($this->film_id);

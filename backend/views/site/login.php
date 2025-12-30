@@ -2,18 +2,19 @@
 
 /** @var yii\web\View $this */
 /** @var yii\bootstrap5\ActiveForm $form */
-/** @var \common\models\LoginForm $model */
+/** @var LoginForm $model */
 
+use common\models\LoginForm;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
-$this->title = 'Login';
+$this->title = 'Вход в панель администратора';
 ?>
 <div class="site-login">
     <div class="mt-5 offset-lg-3 col-lg-6">
         <h1><?= Html::encode($this->title) ?></h1>
 
-        <p>Please fill out the following fields to login:</p>
+        <p>Для входа в систему, пожалуйста, заполните следующие поля:</p>
 
         <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
 
@@ -24,7 +25,7 @@ $this->title = 'Login';
             <?= $form->field($model, 'rememberMe')->checkbox() ?>
 
             <div class="form-group">
-                <?= Html::submitButton('Login', ['class' => 'btn btn-primary btn-block', 'name' => 'login-button']) ?>
+                <?= Html::submitButton('Логин', ['class' => 'btn btn-primary btn-block', 'name' => 'login-button']) ?>
             </div>
 
         <?php ActiveForm::end(); ?>
